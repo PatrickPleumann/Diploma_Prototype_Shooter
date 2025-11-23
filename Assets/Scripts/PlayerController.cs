@@ -24,14 +24,16 @@ public class PlayerController : MonoBehaviour
     [SerializeField] public float cameraClampNeg = -89;
     [SerializeField] public float cameraSensitivity = 20f;
 
+    public LayerMask groundCheckLayers;
+
     [SerializeField] private Transform cameraTransform;
     [SerializeField] private Transform playerTransform; // because I wanted to seperate rb rotation from camera rotation
     [SerializeField] private Transform gunBarrelRoot;
 
+    [SerializeField] private Vector3 groundCheckPos;
+    [SerializeField] private Vector3 groundCheckSize;
+        
     private Rigidbody rb_Body;
-
-    //SmoothDamping
-    private Vector3 refVector = Vector3.zero;
 
     //Directions
     private Vector2 cameraDir;
@@ -49,34 +51,43 @@ public class PlayerController : MonoBehaviour
     private Vector3 velocityChange;
 
 
+    //Forces
+    private Vector3 jumpForceVector;
+
+
 
     private void OnEnable()
     {
-        //shoot.action.started += OnShoot;
+        shoot.action.started += OnShoot;
         jump.action.started += OnJump;
-        look.action.started += OnLook;
     }
 
-    private void OnLook(InputAction.CallbackContext context)
+    private void OnDisable()
     {
-        UpdateBodyRotation();
-        UpdateCameraRotation();
+        shoot.action.started -= OnShoot;
+        jump.action.started -= OnJump;
     }
-
     private void Start()
     {
         rb_Body = GetComponent<Rigidbody>();
+        jumpForceVector = new Vector3(0f, rb_Body.mass * jumpForce, 0f);
     }
 
     private void OnJump(InputAction.CallbackContext context)
     {
-        rb_Body.AddForce(new Vector3(0, 1 * jumpForce, 0));
+        if (Physics.OverlapBox(playerTransform.position + groundCheckPos, groundCheckSize / 2, Quaternion.identity, groundCheckLayers).Length > 0)
+        {
+            Debug.Log("JUMP");
+            rb_Body.AddForce(jumpForceVector, ForceMode.Impulse);
+        }
+        else
+            Debug.Log("Kein Jump");
     }
 
-    //private void OnShoot(InputAction.CallbackContext context)
-    //{
-    //    throw new NotImplementedException();
-    //}
+    private void OnShoot(InputAction.CallbackContext context)
+    {
+        Debug.Log("BOOM");
+    }
 
     private void MovePlayer()
     {
@@ -98,8 +109,8 @@ public class PlayerController : MonoBehaviour
     public void UpdateBodyRotation()
     {
         bodyDir = look.action.ReadValue<Vector2>();
-        
-        eulerAngleRotation.y += (bodyDir.x  * cameraSensitivity * Time.deltaTime);
+
+        eulerAngleRotation.y += (bodyDir.x * cameraSensitivity * Time.deltaTime);
 
         smoothRotation.y = Mathf.Lerp(smoothRotation.y, eulerAngleRotation.y, smoothTime * Time.deltaTime);
     }
@@ -117,18 +128,19 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
+        UpdateBodyRotation();
+        UpdateCameraRotation();
         MovePlayer();
-    }
-
-    private void LateUpdate()
-    {
-
+        rb_Body.rotation = Quaternion.Euler(0f, smoothRotation.y, 0f);
         cameraTransform.eulerAngles = smoothRotation;
-        rb_Body.rotation = Quaternion.Euler(0f,smoothRotation.y,0f);
     }
-    private void OnDrawGizmos()
+
+
+    private void OnDrawGizmosSelected()
     {
+        
         Gizmos.color = Color.cyan;
         Gizmos.DrawRay(gunBarrelRoot.position, gunBarrelRoot.forward);
+        Gizmos.DrawCube(playerTransform.position + groundCheckPos, groundCheckSize);
     }
 }

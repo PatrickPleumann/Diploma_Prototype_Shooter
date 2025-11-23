@@ -233,7 +233,7 @@ GameObject:
   - component: {fileID: 330585545}
   - component: {fileID: 330585544}
   - component: {fileID: 330585547}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: MainCamera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
@@ -495,7 +495,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 828801835}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Ground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -575,9 +575,25 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 330585546}
     m_Modifications:
+    - target: {fileID: 3253953249301693248, guid: 5f04650d3064895489cdb8f95e907c1b, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3444375215726945352, guid: 5f04650d3064895489cdb8f95e907c1b, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 4920507860935382577, guid: 5f04650d3064895489cdb8f95e907c1b, type: 3}
       propertyPath: m_Name
       value: Pistol_D
+      objectReference: {fileID: 0}
+    - target: {fileID: 4920507860935382577, guid: 5f04650d3064895489cdb8f95e907c1b, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5506949411328772694, guid: 5f04650d3064895489cdb8f95e907c1b, type: 3}
+      propertyPath: m_Layer
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 5693384977058778251, guid: 5f04650d3064895489cdb8f95e907c1b, type: 3}
       propertyPath: m_LocalScale.x
@@ -630,6 +646,22 @@ PrefabInstance:
     - target: {fileID: 5693384977058778251, guid: 5f04650d3064895489cdb8f95e907c1b, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5845825414163114276, guid: 5f04650d3064895489cdb8f95e907c1b, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6114543570693722040, guid: 5f04650d3064895489cdb8f95e907c1b, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6293064923252658822, guid: 5f04650d3064895489cdb8f95e907c1b, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8818350177159460995, guid: 5f04650d3064895489cdb8f95e907c1b, type: 3}
+      propertyPath: m_Layer
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -811,7 +843,7 @@ GameObject:
   - component: {fileID: 1548178321}
   - component: {fileID: 1548178323}
   - component: {fileID: 1548178322}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: PlayerBody
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -858,7 +890,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: 90e4f2de9ae0a284ba2db9bdbd931d16, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -888,7 +920,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1548178320}
-  m_Mesh: {fileID: 0}
+  m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &1734753115
 GameObject:
   m_ObjectHideFlags: 0
@@ -901,7 +933,7 @@ GameObject:
   - component: {fileID: 1734753119}
   - component: {fileID: 1734753118}
   - component: {fileID: 1734753117}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1012,7 +1044,7 @@ GameObject:
   - component: {fileID: 1793774109}
   - component: {fileID: 1793774111}
   - component: {fileID: 1793774110}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1034,6 +1066,7 @@ Transform:
   m_Children:
   - {fileID: 1548178321}
   - {fileID: 330585546}
+  - {fileID: 2098017112}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1793774109
@@ -1061,10 +1094,15 @@ MonoBehaviour:
   cameraClampPos: 85
   cameraClampNeg: -85
   cameraSensitivity: 20
+  groundCheckLayers:
+    serializedVersion: 2
+    m_Bits: 8
   cameraTransform: {fileID: 330585546}
   playerTransform: {fileID: 1548178321}
   gunBarrelRoot: {fileID: 950232774}
-  smoothTime: 25
+  groundCheckPos: {x: 0, y: -0.75, z: 0}
+  groundCheckSize: {x: 0.8, y: 0.1, z: 0.8}
+  smoothTime: 20
 --- !u!54 &1793774110
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1125,7 +1163,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2098017112}
   - component: {fileID: 2098017113}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: PlayerInput
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1145,7 +1183,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1793774108}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2098017113
 MonoBehaviour:
@@ -1184,7 +1222,6 @@ SceneRoots:
   - {fileID: 410087041}
   - {fileID: 832575519}
   - {fileID: 828801835}
-  - {fileID: 2098017112}
   - {fileID: 1793774108}
   - {fileID: 114948206}
   - {fileID: 1492071812}

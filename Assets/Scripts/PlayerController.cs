@@ -1,15 +1,14 @@
 using System;
-using Unity.VisualScripting;
-using UnityEditor.Search;
+using UnityEditor;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private PlayerInput input;
 
-    [SerializeField] private float acceleration;
+    [SerializeField] private float speed;
+    [SerializeField] private float airSpeed;
     [SerializeField] private float maxSpeed;
     [SerializeField] private float jumpForce;
 
@@ -24,7 +23,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] public float cameraClampNeg = -89;
     [SerializeField] public float cameraSensitivity = 20f;
 
-    public LayerMask groundCheckLayers;
 
     [SerializeField] private Transform cameraTransform;
     [SerializeField] private Transform playerTransform; // because I wanted to seperate rb rotation from camera rotation
@@ -32,12 +30,23 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] private Vector3 groundCheckPos;
     [SerializeField] private Vector3 groundCheckSize;
-        
+    [SerializeField] public LayerMask groundCheckLayers;
+    [SerializeField] public LayerMask targetLayerMask;
+
+    [SerializeField] private Transform wallCheckRoot;
+    [SerializeField] private float wallCheckRadius;
+    [SerializeField] public LayerMask wallCheckLayers;
+
+    [SerializeField] private Collider wallJumpCollider;
+
+
     private Rigidbody rb_Body;
+    private bool isGrounded = true;
+    private Collider[] touchesWall;
 
     //Directions
-    private Vector2 cameraDir;
-    private Vector2 bodyDir;
+    private float cameraDir;
+    private float bodyDir;
     private Vector2 moveDir;
 
     //Rotations
@@ -53,6 +62,7 @@ public class PlayerController : MonoBehaviour
 
     //Forces
     private Vector3 jumpForceVector;
+    private bool canMove = true;
 
 
 
@@ -69,58 +79,73 @@ public class PlayerController : MonoBehaviour
     }
     private void Start()
     {
+        Cursor.lockState = CursorLockMode.Locked;
         rb_Body = GetComponent<Rigidbody>();
-        jumpForceVector = new Vector3(0f, rb_Body.mass * jumpForce, 0f);
+        jumpForceVector = new Vector3(0f, 1, 0f);
+
     }
 
     private void OnJump(InputAction.CallbackContext context)
     {
-        if (Physics.OverlapBox(playerTransform.position + groundCheckPos, groundCheckSize / 2, Quaternion.identity, groundCheckLayers).Length > 0)
+        if (isGrounded)
         {
-            Debug.Log("JUMP");
-            rb_Body.AddForce(jumpForceVector, ForceMode.Impulse);
+            isGrounded = false;
+            rb_Body.AddForce(jumpForceVector * rb_Body.mass * jumpForce, ForceMode.Impulse);
         }
-        else
-            Debug.Log("Kein Jump");
+        else if (!isGrounded && touchesWall.Length > 0)
+        {
+            var cur = Vector3.Reflect(playerTransform.forward, touchesWall[0].transform.forward);
+            cur.y = 1;
+            rb_Body.AddForce(cur.normalized * rb_Body.mass * jumpForce, ForceMode.Impulse);
+            canMove = false;
+        }
     }
 
     private void OnShoot(InputAction.CallbackContext context)
     {
-        Debug.Log("BOOM");
+        RaycastHit hit;
+        Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+        var temp = Physics.Raycast(ray, out hit, 100f, targetLayerMask);
+        if (temp == true)
+        {
+            Debug.Log("HIT!");
+        }
     }
+
 
     private void MovePlayer()
     {
-        moveDir = move.action.ReadValue<Vector2>();
+        if (canMove == true)
+        {
+            moveDir = move.action.ReadValue<Vector2>();
 
-        currentVel = rb_Body.linearVelocity;
-        targetVel = new Vector3(moveDir.x, 0f, moveDir.y);
-        targetVel *= maxSpeed;
+            currentVel = rb_Body.linearVelocity;
+            targetVel = new Vector3(moveDir.x, 0f, moveDir.y);
+            targetVel *= speed;
 
-        targetVel = playerTransform.TransformDirection(targetVel);
+            targetVel = playerTransform.TransformDirection(targetVel);
 
-        velocityChange = targetVel - currentVel;
-        velocityChange.y = 0f;
-        velocityChange = Vector3.ClampMagnitude(velocityChange, maxSpeed);
+            velocityChange = targetVel - currentVel;
+            velocityChange.y = 0f;
+            velocityChange = Vector3.ClampMagnitude(velocityChange, maxSpeed);
 
-        rb_Body.AddForce(velocityChange, ForceMode.VelocityChange);
+            rb_Body.AddForce(velocityChange, ForceMode.VelocityChange);
+        }
     }
 
     public void UpdateBodyRotation()
     {
-        bodyDir = look.action.ReadValue<Vector2>();
-
-        eulerAngleRotation.y += (bodyDir.x * cameraSensitivity * Time.deltaTime);
+        bodyDir = look.action.ReadValue<Vector2>().x;
+        eulerAngleRotation.y += (bodyDir * cameraSensitivity * Time.deltaTime);
 
         smoothRotation.y = Mathf.Lerp(smoothRotation.y, eulerAngleRotation.y, smoothTime * Time.deltaTime);
     }
 
     public void UpdateCameraRotation()
     {
-        cameraDir = look.action.ReadValue<Vector2>();
-
-        eulerAngleRotation.x += -cameraDir.y * cameraSensitivity * Time.deltaTime;
-        eulerAngleRotation.x = Mathf.Clamp(eulerAngleRotation.x, -89f, 90f);
+        cameraDir = look.action.ReadValue<Vector2>().y;
+        eulerAngleRotation.x += -cameraDir * cameraSensitivity * Time.deltaTime;
+        eulerAngleRotation.x = Mathf.Clamp(eulerAngleRotation.x, cameraClampNeg, cameraClampPos);
 
         smoothRotation.x = Mathf.Lerp(smoothRotation.x, eulerAngleRotation.x, smoothTime * Time.deltaTime);
     }
@@ -128,9 +153,23 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (Physics.OverlapBox(playerTransform.position + groundCheckPos, groundCheckSize / 2, Quaternion.identity, groundCheckLayers).Length > 0)
+        {
+            canMove = true;
+            isGrounded = true;
+        }
+        else
+        {
+            isGrounded = false;
+        }
+
+
+        touchesWall = Physics.OverlapSphere(wallCheckRoot.position, wallCheckRadius, wallCheckLayers);
+
         UpdateBodyRotation();
         UpdateCameraRotation();
         MovePlayer();
+
         rb_Body.rotation = Quaternion.Euler(0f, smoothRotation.y, 0f);
         cameraTransform.eulerAngles = smoothRotation;
     }
@@ -138,9 +177,13 @@ public class PlayerController : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        
+        Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f,0f));
+        rb_Body = GetComponent<Rigidbody>();
         Gizmos.color = Color.cyan;
         Gizmos.DrawRay(gunBarrelRoot.position, gunBarrelRoot.forward);
         Gizmos.DrawCube(playerTransform.position + groundCheckPos, groundCheckSize);
+        Gizmos.DrawSphere(wallCheckRoot.position, wallCheckRadius);
+        Gizmos.DrawRay(rb_Body.transform.position, rb_Body.transform.forward * 2);
+        Gizmos.DrawRay(ray);
     }
 }

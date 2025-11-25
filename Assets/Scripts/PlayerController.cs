@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private PlayerInput input;
+    [SerializeField] public BeatTracking beatTracker;
 
     [SerializeField] private float speed;
     [SerializeField] private float airSpeed;
@@ -17,12 +18,11 @@ public class PlayerController : MonoBehaviour
     [SerializeField] public InputActionReference look;
     [SerializeField] public InputActionReference jump;
 
-    [SerializeField] public float gravityScale = 1f;
+    [SerializeField] public float gravityScale = 1;
     [SerializeField] public float gravityForce = 9.81f;
-    [SerializeField] public float cameraClampPos = 89f;
-    [SerializeField] public float cameraClampNeg = -89;
+    [SerializeField] public float cameraClampPos = 85f;
+    [SerializeField] public float cameraClampNeg = -85;
     [SerializeField] public float cameraSensitivity = 20f;
-
 
     [SerializeField] private Transform cameraTransform;
     [SerializeField] private Transform playerTransform; // because I wanted to seperate rb rotation from camera rotation
@@ -30,14 +30,13 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] private Vector3 groundCheckPos;
     [SerializeField] private Vector3 groundCheckSize;
+
     [SerializeField] public LayerMask groundCheckLayers;
     [SerializeField] public LayerMask targetLayerMask;
+    [SerializeField] public LayerMask wallCheckLayers;
 
     [SerializeField] private Transform wallCheckRoot;
     [SerializeField] private float wallCheckRadius;
-    [SerializeField] public LayerMask wallCheckLayers;
-
-    [SerializeField] private Collider wallJumpCollider;
 
 
     private Rigidbody rb_Body;
@@ -62,8 +61,8 @@ public class PlayerController : MonoBehaviour
 
     //Forces
     private Vector3 jumpForceVector;
+    private Vector3 wallJumpDir;
     private bool canMove = true;
-
 
 
     private void OnEnable()
@@ -82,27 +81,44 @@ public class PlayerController : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         rb_Body = GetComponent<Rigidbody>();
         jumpForceVector = new Vector3(0f, 1, 0f);
-
     }
 
     private void OnJump(InputAction.CallbackContext context)
     {
+        EventHandler.onWeaponShoot.Invoke();
+        if (beatTracker.isOnBeat == true)
+        {
+            Debug.Log("ON BEAT!");
+        }
+
+        if (isGrounded)
+            wallJumpDir = playerTransform.forward;
+
         if (isGrounded)
         {
+
             isGrounded = false;
             rb_Body.AddForce(jumpForceVector * rb_Body.mass * jumpForce, ForceMode.Impulse);
         }
         else if (!isGrounded && touchesWall.Length > 0)
         {
-            var cur = Vector3.Reflect(playerTransform.forward, touchesWall[0].transform.forward);
+            if (beatTracker.isOnBeat == true)
+            {
+                Debug.Log("On Beat");
+            }
+            canMove = false;
+            var cur = Vector3.Reflect(wallJumpDir, touchesWall[0].transform.forward);
             cur.y = 1;
             rb_Body.AddForce(cur.normalized * rb_Body.mass * jumpForce, ForceMode.Impulse);
-            canMove = false;
         }
     }
 
     private void OnShoot(InputAction.CallbackContext context)
     {
+        if (beatTracker.isOnBeat == true)
+        {
+            Debug.Log("ON BEAT!");
+        }
         RaycastHit hit;
         Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         var temp = Physics.Raycast(ray, out hit, 100f, targetLayerMask);
@@ -159,9 +175,7 @@ public class PlayerController : MonoBehaviour
             isGrounded = true;
         }
         else
-        {
             isGrounded = false;
-        }
 
 
         touchesWall = Physics.OverlapSphere(wallCheckRoot.position, wallCheckRadius, wallCheckLayers);
@@ -177,13 +191,9 @@ public class PlayerController : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f,0f));
-        rb_Body = GetComponent<Rigidbody>();
         Gizmos.color = Color.cyan;
         Gizmos.DrawRay(gunBarrelRoot.position, gunBarrelRoot.forward);
         Gizmos.DrawCube(playerTransform.position + groundCheckPos, groundCheckSize);
         Gizmos.DrawSphere(wallCheckRoot.position, wallCheckRadius);
-        Gizmos.DrawRay(rb_Body.transform.position, rb_Body.transform.forward * 2);
-        Gizmos.DrawRay(ray);
     }
 }

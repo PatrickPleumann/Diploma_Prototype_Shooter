@@ -38,6 +38,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform wallCheckRoot;
     [SerializeField] private float wallCheckRadius;
 
+    [SerializeField] public GameObject bullet;
+    [SerializeField] public Transform bulletParent;
+
 
     private Rigidbody rb_Body;
     private bool isGrounded = true;
@@ -96,7 +99,6 @@ public class PlayerController : MonoBehaviour
 
         if (isGrounded)
         {
-
             isGrounded = false;
             rb_Body.AddForce(jumpForceVector * rb_Body.mass * jumpForce, ForceMode.Impulse);
         }
@@ -112,9 +114,14 @@ public class PlayerController : MonoBehaviour
             rb_Body.AddForce(cur.normalized * rb_Body.mass * jumpForce, ForceMode.Impulse);
         }
     }
-
+    
     private void OnShoot(InputAction.CallbackContext context)
     {
+        var tempBullet = Instantiate(bullet, gunBarrelRoot);
+        tempBullet.transform.localPosition = gunBarrelRoot.transform.localPosition;
+        var tempBulletRB = tempBullet.GetComponent<Rigidbody>();
+        tempBulletRB.AddForce(gunBarrelRoot.forward * 10, ForceMode.Impulse);
+
         if (beatTracker.isOnBeat == true)
         {
             Debug.Log("ON BEAT!");

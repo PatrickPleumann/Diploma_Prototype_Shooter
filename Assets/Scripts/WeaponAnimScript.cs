@@ -1,17 +1,15 @@
+using TMPro;
 using UnityEngine;
 
 public class WeaponAnimScript : MonoBehaviour
 {
-    public Transform recoilEnd;
-    public Transform weapon;
-    private Vector3 startPos;
-    private Vector3 startRot;
-
+    private Transform weaponTransform;
+    private Transform oldTransform;
 
     private void Awake()
     {
-        startPos = weapon.localPosition;
-        startRot = weapon.eulerAngles;
+        weaponTransform = GetComponent<Transform>();
+        oldTransform = weaponTransform;
     }
     private void OnEnable()
     {
@@ -20,13 +18,14 @@ public class WeaponAnimScript : MonoBehaviour
 
     private void WeaponWiggle()
     {
-        weapon.localPosition = Vector3.Lerp(weapon.localPosition, recoilEnd.localPosition, Time.deltaTime * 3);
-        weapon.eulerAngles = Vector3.Lerp(weapon.eulerAngles, recoilEnd.eulerAngles, Time.deltaTime * 3);
+        oldTransform = weaponTransform;
+
+        weaponTransform.eulerAngles = Vector3.Lerp(weaponTransform.eulerAngles, new Vector3
+            (weaponTransform.eulerAngles.x + 20, weaponTransform.eulerAngles.y, weaponTransform.eulerAngles.z), 20 * Time.deltaTime);
     }
 
     void Update()
     {
-        weapon.localPosition = Vector3.Lerp(weapon.localPosition, startPos,3);
-        weapon.eulerAngles = Vector3.Lerp(weapon.eulerAngles, startRot, 3);
+        weaponTransform.eulerAngles = Vector3.Lerp(weaponTransform.eulerAngles, oldTransform.eulerAngles, 20 * Time.deltaTime);
     }
 }

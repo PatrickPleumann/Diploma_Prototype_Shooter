@@ -1,10 +1,13 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BeatTracking : MonoBehaviour
 {
     [SerializeField] public AudioSource source;
     [SerializeField] public AudioClip song;
+    [SerializeField] public Slider beatSlider;
+    [SerializeField] public Slider onBeatAreaSlider;
 
     public int currentSamples = 0;
     public int currentTimeSamplesMin = 0;
@@ -34,6 +37,12 @@ public class BeatTracking : MonoBehaviour
         onBeatOffset = (int)(samplesPerBeat * 0.20f);
         //Debug.Log("omBeatOffset: " + onBeatOffset);
 
+        beatSlider.maxValue = samplesPerBeat + onBeatOffset;
+
+        onBeatAreaSlider.maxValue = samplesPerBeat + onBeatOffset;
+        onBeatAreaSlider.value = samplesPerBeat - onBeatOffset;
+
+
         StartCoroutine(StartSongDelayed());
     }
 
@@ -46,6 +55,7 @@ public class BeatTracking : MonoBehaviour
     {
         currentSamples += source.timeSamples - lastFrameSamples;
         lastFrameSamples = source.timeSamples;
+        beatSlider.value = currentSamples;
 
         if ((currentSamples / samplesPerBeat) >= beatMultiplier)
         {

@@ -85,7 +85,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnJump(InputAction.CallbackContext context)
     {
-        EventHandler.onWeaponShoot.Invoke();
+        //EventHandler.onWeaponShoot.Invoke();
         if (beatTracker.isOnBeat == true)
         {
             Debug.Log("ON BEAT!");

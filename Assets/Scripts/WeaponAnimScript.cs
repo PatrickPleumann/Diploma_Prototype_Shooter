@@ -2,12 +2,16 @@ using UnityEngine;
 
 public class WeaponAnimScript : MonoBehaviour
 {
+    public Transform recoilEnd;
     public Transform weapon;
-    public Vector3 weaponOld;
+    private Vector3 startPos;
+    private Vector3 startRot;
+
 
     private void Awake()
     {
-        //weaponOld = weapon.localRotation;
+        startPos = weapon.localPosition;
+        startRot = weapon.eulerAngles;
     }
     private void OnEnable()
     {
@@ -16,14 +20,13 @@ public class WeaponAnimScript : MonoBehaviour
 
     private void WeaponWiggle()
     {
-        var temp = weapon;
-        weapon.localEulerAngles = new Vector3(weapon.localEulerAngles.x + 20, weapon.localEulerAngles.y, weapon.localEulerAngles.z);
+        weapon.localPosition = Vector3.Lerp(weapon.localPosition, recoilEnd.localPosition, Time.deltaTime * 3);
+        weapon.eulerAngles = Vector3.Lerp(weapon.eulerAngles, recoilEnd.eulerAngles, Time.deltaTime * 3);
     }
 
-
-    // Update is called once per frame
     void Update()
     {
-        //weapon.localRotation = Quaternion.Euler(Vector3.Lerp(weapon.eulerAngles, weaponOld, Time.deltaTime));
+        weapon.localPosition = Vector3.Lerp(weapon.localPosition, startPos,3);
+        weapon.eulerAngles = Vector3.Lerp(weapon.eulerAngles, startRot, 3);
     }
 }

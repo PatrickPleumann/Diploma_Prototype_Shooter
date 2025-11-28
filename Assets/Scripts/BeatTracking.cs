@@ -6,8 +6,12 @@ public class BeatTracking : MonoBehaviour
 {
     [SerializeField] public AudioSource source;
     [SerializeField] public AudioClip song;
-    [SerializeField] public Slider beatSlider;
-    [SerializeField] public Slider onBeatAreaSlider;
+
+    [SerializeField] public Slider beatSliderLeft;
+    [SerializeField] public Slider onBeatAreaSliderLeft;
+
+    [SerializeField] public Slider beatSliderRight;
+    [SerializeField] public Slider onBeatAreaSliderRight;
 
     public int currentSamples = 0;
     public int currentTimeSamplesMin = 0;
@@ -33,16 +37,18 @@ public class BeatTracking : MonoBehaviour
     void Start()
     {
         samplesPerBeat = (int)(source.clip.frequency * (60f / bpm));
-        //Debug.Log("samplesPerBeat: " + samplesPerBeat);
 
         onBeatOffset = (int)(samplesPerBeat * 0.10f);
-        //Debug.Log("omBeatOffset: " + onBeatOffset);
 
-        beatSlider.maxValue = (samplesPerBeat * beatMultiplier) + (onBeatOffset * beatMultiplier);
+        beatSliderLeft.maxValue = (samplesPerBeat * beatMultiplier);
+        beatSliderRight.maxValue = (samplesPerBeat * beatMultiplier);
 
-        onBeatAreaSlider.maxValue = (samplesPerBeat * beatMultiplier) + (onBeatOffset * beatMultiplier);
-        onBeatAreaSlider.value = (samplesPerBeat *beatMultiplier) - (onBeatOffset * beatMultiplier);
 
+        onBeatAreaSliderLeft.maxValue = (samplesPerBeat * beatMultiplier) ;
+        onBeatAreaSliderLeft.value = samplesPerBeat * beatMultiplier - (onBeatOffset * beatMultiplier);
+
+        onBeatAreaSliderRight.maxValue = (samplesPerBeat * beatMultiplier) ;
+        onBeatAreaSliderRight.value = samplesPerBeat * beatMultiplier - (onBeatOffset * beatMultiplier);
 
         StartCoroutine(StartSongDelayed());
     }
@@ -56,7 +62,8 @@ public class BeatTracking : MonoBehaviour
     {
         currentSamples += source.timeSamples - lastFrameSamples;
         lastFrameSamples = source.timeSamples;
-        beatSlider.value = currentSamples;
+        beatSliderLeft.value = currentSamples;
+        beatSliderRight.value = currentSamples;
 
         if ((currentSamples / samplesPerBeat) >= beatMultiplier)
         {

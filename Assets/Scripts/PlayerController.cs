@@ -27,6 +27,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform cameraTransform;
     [SerializeField] private Transform playerTransform; // because I wanted to seperate rb rotation from camera rotation
     [SerializeField] private Transform gunBarrelRoot;
+    private Vector3 cameraCenterPoint;
 
     [SerializeField] private Vector3 groundCheckPos;
     [SerializeField] private Vector3 groundCheckSize;
@@ -110,7 +111,7 @@ public class PlayerController : MonoBehaviour
             }
             canMove = false;
             var cur = Vector3.Reflect(wallJumpDir, touchesWall[0].transform.forward);
-            cur.y = 1;
+            cur.y += 0.3f;
             rb_Body.AddForce(cur.normalized * rb_Body.mass * jumpForce, ForceMode.Impulse);
         }
     }
@@ -127,7 +128,7 @@ public class PlayerController : MonoBehaviour
             Debug.Log("ON BEAT!");
         }
         RaycastHit hit;
-        Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+        Ray ray = Camera.main.ViewportPointToRay(cameraCenterPoint);
         var temp = Physics.Raycast(ray, out hit, 100f, targetLayerMask);
         if (temp == true)
         {
@@ -144,7 +145,9 @@ public class PlayerController : MonoBehaviour
 
             currentVel = rb_Body.linearVelocity;
             targetVel = new Vector3(moveDir.x, 0f, moveDir.y);
-            targetVel *= speed;
+
+            //targetVel *= speed;
+            targetVel *= moveDir == Vector2.zero ? airSpeed : speed;
 
             targetVel = playerTransform.TransformDirection(targetVel);
 

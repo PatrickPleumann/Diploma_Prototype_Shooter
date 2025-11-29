@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -13,10 +14,16 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float maxSpeed;
     [SerializeField] private float jumpForce;
 
+    [SerializeField] private float dashTimer;
+    private bool canDash = true;
+    private Vector3 targetDir;
+    [SerializeField] public float dashForce;
+
     [SerializeField] public InputActionReference shoot;
     [SerializeField] public InputActionReference move;
     [SerializeField] public InputActionReference look;
     [SerializeField] public InputActionReference jump;
+    [SerializeField] public InputActionReference dash;
 
     [SerializeField] public float gravityScale = 1;
     [SerializeField] public float gravityForce = 9.81f;
@@ -73,18 +80,34 @@ public class PlayerController : MonoBehaviour
     {
         shoot.action.started += OnShoot;
         jump.action.started += OnJump;
+        dash.action.started += OnDash;
+
     }
 
     private void OnDisable()
     {
         shoot.action.started -= OnShoot;
         jump.action.started -= OnJump;
+        dash.action.started -= OnDash;
     }
     private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
         rb_Body = GetComponent<Rigidbody>();
         jumpForceVector = new Vector3(0f, 1, 0f);
+        cameraCenterPoint = new Vector3(0.5f, 0.5f, 1.0f);
+    }
+
+    private void OnDash(InputAction.CallbackContext context)
+    {
+        if (canDash == true)
+        {
+            
+            canDash = false;
+            targetDir = playerTransform.TransformDirection(targetVel);
+            rb_Body.AddForce(targetVel * rb_Body.mass * dashForce, ForceMode.Impulse);
+            StartCoroutine(StartDashTimer());
+        }
     }
 
     private void OnJump(InputAction.CallbackContext context)
@@ -118,10 +141,10 @@ public class PlayerController : MonoBehaviour
     
     private void OnShoot(InputAction.CallbackContext context)
     {
-        var tempBullet = Instantiate(bullet, gunBarrelRoot);
-        tempBullet.transform.localPosition = gunBarrelRoot.transform.localPosition;
+        var tempPos = Camera.main.ViewportPointToRay(cameraCenterPoint);
+        var tempBullet = Instantiate(bullet, tempPos.origin, Quaternion.Euler(transform.eulerAngles));
         var tempBulletRB = tempBullet.GetComponent<Rigidbody>();
-        tempBulletRB.AddForce(gunBarrelRoot.forward * 10, ForceMode.Impulse);
+        tempBulletRB.AddForce(tempPos.direction * 20, ForceMode.Impulse);
 
         if (beatTracker.isOnBeat == true)
         {
@@ -146,8 +169,7 @@ public class PlayerController : MonoBehaviour
             currentVel = rb_Body.linearVelocity;
             targetVel = new Vector3(moveDir.x, 0f, moveDir.y);
 
-            //targetVel *= speed;
-            targetVel *= moveDir == Vector2.zero ? airSpeed : speed;
+            targetVel *= speed;
 
             targetVel = playerTransform.TransformDirection(targetVel);
 
@@ -205,5 +227,12 @@ public class PlayerController : MonoBehaviour
         Gizmos.DrawRay(gunBarrelRoot.position, gunBarrelRoot.forward);
         Gizmos.DrawCube(playerTransform.position + groundCheckPos, groundCheckSize);
         Gizmos.DrawSphere(wallCheckRoot.position, wallCheckRadius);
+    }
+
+    IEnumerator StartDashTimer()
+    {
+        yield return new WaitForSeconds(3);
+        canDash = true;
+        yield break;
     }
 }

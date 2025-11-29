@@ -13,6 +13,8 @@ public class BeatTracking : MonoBehaviour
     [SerializeField] public Slider beatSliderRight;
     [SerializeField] public Slider onBeatAreaSliderRight;
 
+    //add async value slider with offset samples and preview on current song before starting.
+
     public int currentSamples = 0;
     public int currentTimeSamplesMin = 0;
     public int currentTimeSamplesMax = 0;

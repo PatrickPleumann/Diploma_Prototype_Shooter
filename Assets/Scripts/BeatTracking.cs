@@ -6,6 +6,7 @@ public class BeatTracking : MonoBehaviour
 {
     [SerializeField] public AudioSource source;
     [SerializeField] public AudioClip song;
+    [SerializeField] public int asyncValue; // for feeling of asynchronous beat behavior
 
     [SerializeField] public Slider beatSliderLeft;
     [SerializeField] public Slider onBeatAreaSliderLeft;
@@ -33,24 +34,26 @@ public class BeatTracking : MonoBehaviour
 
     private void Awake()
     {
+
         source = GetComponent<AudioSource>();
         source.clip = song;
     }
     void Start()
     {
-        samplesPerBeat = (int)(source.clip.frequency * (60f / bpm));
+        samplesPerBeat = (int)(source.clip.frequency * (60f / bpm)) * beatMultiplier;
+        onBeatOffset = (int)(samplesPerBeat * 0.10f) * beatMultiplier;
 
-        onBeatOffset = (int)(samplesPerBeat * 0.10f);
-
-        beatSliderLeft.maxValue = (samplesPerBeat * beatMultiplier);
-        beatSliderRight.maxValue = (samplesPerBeat * beatMultiplier);
+        currentSamples += asyncValue;
 
 
-        onBeatAreaSliderLeft.maxValue = (samplesPerBeat * beatMultiplier) ;
-        onBeatAreaSliderLeft.value = samplesPerBeat * beatMultiplier - (onBeatOffset * beatMultiplier);
+        beatSliderLeft.maxValue = samplesPerBeat;
+        beatSliderRight.maxValue = samplesPerBeat;
 
-        onBeatAreaSliderRight.maxValue = (samplesPerBeat * beatMultiplier) ;
-        onBeatAreaSliderRight.value = samplesPerBeat * beatMultiplier - (onBeatOffset * beatMultiplier);
+        onBeatAreaSliderLeft.maxValue = samplesPerBeat ;
+        onBeatAreaSliderLeft.value = samplesPerBeat - onBeatOffset;
+
+        onBeatAreaSliderRight.maxValue = samplesPerBeat;
+        onBeatAreaSliderRight.value = samplesPerBeat - onBeatOffset;
 
         StartCoroutine(StartSongDelayed());
     }
@@ -67,10 +70,18 @@ public class BeatTracking : MonoBehaviour
         beatSliderLeft.value = currentSamples;
         beatSliderRight.value = currentSamples;
 
-        if ((currentSamples / samplesPerBeat) >= beatMultiplier)
+        if ((currentSamples / samplesPerBeat) >= 1)
         {
-            currentSamples -= (samplesPerBeat * beatMultiplier);
+            currentSamples -= samplesPerBeat;
             beatCounter++;
+            if (ScoreBoard.Instance.lastActionOnBeat == true)
+            {
+                ScoreBoard.Instance.lastActionOnBeat = false;
+            }
+            else
+            {
+                ScoreBoard.Instance.SubtractCombo();
+            }
         }
 
         if ((currentSamples - samplesPerBeat) <= 0 && (currentSamples - samplesPerBeat) > (onBeatOffset * -1))

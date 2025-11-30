@@ -58,6 +58,7 @@ public class PlayerController : MonoBehaviour
     private float cameraDir;
     private float bodyDir;
     private Vector2 moveDir;
+    private Ray crosshairPos;
 
     //Rotations
     [SerializeField] private float smoothTime = 25f;
@@ -68,6 +69,7 @@ public class PlayerController : MonoBehaviour
     private Vector3 currentVel;
     private Vector3 targetVel;
     private Vector3 velocityChange;
+    private Vector3 dashVelocity;
 
 
     //Forces
@@ -96,16 +98,24 @@ public class PlayerController : MonoBehaviour
         rb_Body = GetComponent<Rigidbody>();
         jumpForceVector = new Vector3(0f, 1, 0f);
         cameraCenterPoint = new Vector3(0.5f, 0.5f, 1.0f);
-    }
 
+    }
     private void OnDash(InputAction.CallbackContext context)
     {
         if (canDash == true)
         {
-            
+            if (beatTracker.isOnBeat == true)
+            {
+                Debug.Log("ON BEAT!");
+                ScoreBoard.Instance.AddCombo();
+                ScoreBoard.Instance.lastActionOnBeat = true;
+            }
             canDash = false;
-            targetDir = playerTransform.TransformDirection(targetVel);
-            rb_Body.AddForce(targetVel * rb_Body.mass * dashForce, ForceMode.Impulse);
+            targetVel = playerTransform.TransformDirection(cameraCenterPoint);
+
+            dashVelocity = targetVel * rb_Body.mass * dashForce;
+            dashVelocity = Vector3.ClampMagnitude(dashVelocity, dashForce);
+            rb_Body.AddForce(dashVelocity, ForceMode.Impulse);
             StartCoroutine(StartDashTimer());
         }
     }
@@ -116,6 +126,8 @@ public class PlayerController : MonoBehaviour
         if (beatTracker.isOnBeat == true)
         {
             Debug.Log("ON BEAT!");
+            ScoreBoard.Instance.AddCombo();
+            ScoreBoard.Instance.lastActionOnBeat = true;
         }
 
         if (isGrounded)
@@ -130,26 +142,35 @@ public class PlayerController : MonoBehaviour
         {
             if (beatTracker.isOnBeat == true)
             {
-                Debug.Log("On Beat");
+                Debug.Log("ON BEAT!");
+                ScoreBoard.Instance.AddCombo();
+                ScoreBoard.Instance.lastActionOnBeat = true;
             }
+
             canMove = false;
             var cur = Vector3.Reflect(wallJumpDir, touchesWall[0].transform.forward);
             cur.y += 0.3f;
+
             rb_Body.AddForce(cur.normalized * rb_Body.mass * jumpForce, ForceMode.Impulse);
         }
     }
-    
+
     private void OnShoot(InputAction.CallbackContext context)
     {
-        var tempPos = Camera.main.ViewportPointToRay(cameraCenterPoint);
-        var tempBullet = Instantiate(bullet, tempPos.origin, Quaternion.Euler(transform.eulerAngles));
+        EventHandler.onWeaponShoot.Invoke();
+
+        crosshairPos = Camera.main.ViewportPointToRay(cameraCenterPoint);
+        var tempBullet = Instantiate(bullet, crosshairPos.origin, Quaternion.Euler(transform.eulerAngles));
         var tempBulletRB = tempBullet.GetComponent<Rigidbody>();
-        tempBulletRB.AddForce(tempPos.direction * 20, ForceMode.Impulse);
+        tempBulletRB.AddForce(crosshairPos.direction * 20, ForceMode.Impulse);
 
         if (beatTracker.isOnBeat == true)
         {
             Debug.Log("ON BEAT!");
+            ScoreBoard.Instance.AddCombo();
+            ScoreBoard.Instance.lastActionOnBeat = true;
         }
+
         RaycastHit hit;
         Ray ray = Camera.main.ViewportPointToRay(cameraCenterPoint);
         var temp = Physics.Raycast(ray, out hit, 100f, targetLayerMask);

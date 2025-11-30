@@ -29,7 +29,7 @@ public class TargetBehaviour : MonoBehaviour
                 targetHittable = false;
                 rend.material.color = Color.red;
                 StartCoroutine(ChangeColorOnHit(respawnTime));
-                ScoreBoard.Instance.AddPoints(_temp.points);
+                ScoreBoard.Instance.AddPoints(_temp.points, _temp.scoreMultiplier);
             }
         }
     }

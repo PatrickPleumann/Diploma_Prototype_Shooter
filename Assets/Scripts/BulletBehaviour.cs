@@ -5,8 +5,12 @@ public class BulletBehaviour : MonoBehaviour
     private float despawnTime = 3;
     public int scoreMultiplier = 1;
     public int points = 1;
-    
 
+
+    private void OnEnable()
+    {
+        scoreMultiplier = ScoreBoard.Instance.Multiplier;
+    }
     private void Update()
     {
         despawnTime -= Time.deltaTime;

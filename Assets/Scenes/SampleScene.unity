@@ -151,7 +151,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BeatTracking
   source: {fileID: 0}
   song: {fileID: 8300000, guid: 1ab84214a26da4b4ab4c24274093f148, type: 3}
-  asyncValue: -4000
+  asyncValue: -2000
   beatSliderLeft: {fileID: 1763217437}
   onBeatAreaSliderLeft: {fileID: 1654456645}
   beatSliderRight: {fileID: 1448693976}

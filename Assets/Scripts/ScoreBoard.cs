@@ -25,7 +25,7 @@ public class ScoreBoard : MonoBehaviour
     public bool lastActionOnBeat =  true;
     public int Points
     {
-        get { return points; }
+        get {  return points; ; }
         set
         {
             points = value;
@@ -34,7 +34,11 @@ public class ScoreBoard : MonoBehaviour
     }
     public int Multiplier
     {
-        get { return multiplier; }
+        get 
+        { 
+            UpdateUI(comboMultiplier, multiplier);
+            return multiplier;
+        }
         set
         {
             multiplier = value;
@@ -50,22 +54,22 @@ public class ScoreBoard : MonoBehaviour
     {
         _text.text = points.ToString();
     }
-    public void AddPoints(int _points)
+    public void AddPoints(int _points, int _combo)
     {
-        Points += (_points * Multiplier);
+        Points += (_points * _combo);
     }
     public void AddCombo()
     {
-        if ((Multiplier + 1) < 4)
+        if (Multiplier <= 4)
         {
             Multiplier++;
         }
     }
     public void SubtractCombo()
     {
-        if ((Multiplier - 1) >= 1)
+        if (Multiplier > 1)
         {
-            Multiplier--;
+            multiplier--;
         }
     }
 

@@ -93,7 +93,7 @@ public class PlayerController : MonoBehaviour
     }
     private void Start()
     {
-        //Cursor.lockState = CursorLockMode.Locked;
+        Cursor.lockState = CursorLockMode.Locked;
         rb_Body = GetComponent<Rigidbody>();
         jumpForceVector = new Vector3(0f, 1, 0f);
         cameraCenterPoint = new Vector3(0.5f, 0.5f, 1.0f);
@@ -113,8 +113,12 @@ public class PlayerController : MonoBehaviour
                 ScoreBoard.Instance.lastActionOnBeat = true;
             }
 
+
             targetVel.y = 0f;
+
             rb_Body.AddForce(targetVel * dashForce * rb_Body.mass, ForceMode.Impulse);
+
+            rb_Body.linearVelocity = Vector3.ClampMagnitude(rb_Body.linearVelocity, dashForce);
         }
     }
 
@@ -139,6 +143,8 @@ public class PlayerController : MonoBehaviour
 
         else if (!isGrounded && touchesWall.Length > 0)
         {
+            canMove = true;
+
             if (beatTracker.isOnBeat == true)
             {
                 Debug.Log("ON BEAT!");
@@ -149,8 +155,10 @@ public class PlayerController : MonoBehaviour
             canMove = false;
             var cur = Vector3.Reflect(wallJumpDir, touchesWall[0].transform.forward);
             cur.y += 0.3f;
-            var impulseChange = cur.normalized * rb_Body.mass * jumpForce;
-            rb_Body.AddForce(impulseChange, ForceMode.Impulse);
+            cur.x = 0f;
+            
+
+            rb_Body.AddForce(cur.normalized * rb_Body.mass * jumpForce, ForceMode.Impulse);
         }
     }
 

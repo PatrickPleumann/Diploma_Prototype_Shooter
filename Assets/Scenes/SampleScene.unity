@@ -222,8 +222,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BeatTracking
   source: {fileID: 0}
-  song: {fileID: 8300000, guid: 1ab84214a26da4b4ab4c24274093f148, type: 3}
-  asyncValue: -2000
+  song: {fileID: 8300000, guid: acdb8007b6d676e4f956708742115f46, type: 3}
+  asyncValue: -6000
   beatSliderLeft: {fileID: 1763217437}
   onBeatAreaSliderLeft: {fileID: 1654456645}
   beatSliderRight: {fileID: 1448693976}
@@ -232,6 +232,8 @@ MonoBehaviour:
   currentTimeSamplesMin: 0
   currentTimeSamplesMax: 0
   beatOffsetMultiplier: 0.1
+  samplesPerBeat: 0
+  bpm: 90
   isOnBeat: 0
   beatCounter: 0
 --- !u!4 &46440849
@@ -5589,7 +5591,7 @@ Transform:
   m_GameObject: {fileID: 1793774107}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.023, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -5618,7 +5620,7 @@ MonoBehaviour:
   maxSpeed: 8
   jumpForce: 8
   dashTimer: 3
-  dashForce: 10
+  dashForce: 20
   shoot: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   move: {fileID: -1680190386980627800, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   look: {fileID: -5630151704836100654, guid: 052faaac586de48259a63d0c4782560b, type: 3}
@@ -5647,7 +5649,7 @@ MonoBehaviour:
   wallCheckRadius: 0.95
   bullet: {fileID: 1276885512958874841, guid: 2dd9fa09e55f38d469aae601022afcd7, type: 3}
   bulletParent: {fileID: 950232775}
-  smoothTime: 1000
+  smoothTime: 20
 --- !u!54 &1793774110
 Rigidbody:
   m_ObjectHideFlags: 0

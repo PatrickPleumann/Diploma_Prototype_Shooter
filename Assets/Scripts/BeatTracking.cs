@@ -22,9 +22,9 @@ public class BeatTracking : MonoBehaviour
 
     [SerializeField] private float beatOffsetMultiplier = 0.10f;
     private int lastFrameSamples = 0;
-    private int samplesPerBeat = 0;
-    private int bpm = 132;
-    private int beatMultiplier = 2;
+    [SerializeField] public int samplesPerBeat = 0;
+    [SerializeField] public int bpm = 90;
+    private int beatMultiplier = 1;
 
     private int onBeatOffset;
 

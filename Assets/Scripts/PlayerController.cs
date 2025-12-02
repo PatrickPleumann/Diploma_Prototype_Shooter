@@ -97,8 +97,8 @@ public class PlayerController : MonoBehaviour
         rb_Body = GetComponent<Rigidbody>();
         jumpForceVector = new Vector3(0f, 1, 0f);
         cameraCenterPoint = new Vector3(0.5f, 0.5f, 1.0f);
-
     }
+
     private void OnDash(InputAction.CallbackContext context)
     {
         if (canDash == true)
@@ -113,27 +113,22 @@ public class PlayerController : MonoBehaviour
                 ScoreBoard.Instance.lastActionOnBeat = true;
             }
 
-
-            targetVel.y = 0f;
-
-            rb_Body.AddForce(targetVel * dashForce * rb_Body.mass, ForceMode.Impulse);
-
-            rb_Body.linearVelocity = Vector3.ClampMagnitude(rb_Body.linearVelocity, dashForce);
+            var temp = targetVel * dashForce * rb_Body.mass;
+            rb_Body.AddForce(temp, ForceMode.Impulse);
+            canMove = true;
         }
     }
 
     private void OnJump(InputAction.CallbackContext context)
     {
-        //EventHandler.onWeaponShoot.Invoke();
-        if (beatTracker.isOnBeat == true)
+        if (beatTracker.isOnBeat == true && isGrounded)
         {
+            wallJumpDir = playerTransform.forward;
             Debug.Log("ON BEAT!");
             ScoreBoard.Instance.AddCombo();
             ScoreBoard.Instance.lastActionOnBeat = true;
         }
 
-        if (isGrounded)
-            wallJumpDir = playerTransform.forward;
 
         if (isGrounded)
         {
@@ -143,8 +138,6 @@ public class PlayerController : MonoBehaviour
 
         else if (!isGrounded && touchesWall.Length > 0)
         {
-            canMove = true;
-
             if (beatTracker.isOnBeat == true)
             {
                 Debug.Log("ON BEAT!");
@@ -155,10 +148,9 @@ public class PlayerController : MonoBehaviour
             canMove = false;
             var cur = Vector3.Reflect(wallJumpDir, touchesWall[0].transform.forward);
             cur.y += 0.3f;
-            cur.x = 0f;
+            var impulseChange = cur.normalized * rb_Body.mass * jumpForce;
             
-
-            rb_Body.AddForce(cur.normalized * rb_Body.mass * jumpForce, ForceMode.Impulse);
+            rb_Body.AddForce(impulseChange, ForceMode.Impulse);
         }
     }
 

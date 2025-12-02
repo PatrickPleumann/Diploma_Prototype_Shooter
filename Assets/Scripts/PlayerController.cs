@@ -113,9 +113,9 @@ public class PlayerController : MonoBehaviour
                 ScoreBoard.Instance.lastActionOnBeat = true;
             }
 
-            var temp = targetVel * dashForce * rb_Body.mass;
-            rb_Body.AddForce(temp, ForceMode.Impulse);
             canMove = true;
+            var temp =  (playerTransform.forward *= speed) * dashForce * rb_Body.mass;
+            rb_Body.AddForce(temp, ForceMode.Impulse);
         }
     }
 
@@ -123,7 +123,6 @@ public class PlayerController : MonoBehaviour
     {
         if (beatTracker.isOnBeat == true && isGrounded)
         {
-            wallJumpDir = playerTransform.forward;
             Debug.Log("ON BEAT!");
             ScoreBoard.Instance.AddCombo();
             ScoreBoard.Instance.lastActionOnBeat = true;
@@ -132,6 +131,7 @@ public class PlayerController : MonoBehaviour
 
         if (isGrounded)
         {
+            wallJumpDir = playerTransform.forward;
             isGrounded = false;
             rb_Body.AddForce(jumpForceVector * rb_Body.mass * jumpForce, ForceMode.Impulse);
         }
@@ -147,10 +147,9 @@ public class PlayerController : MonoBehaviour
 
             canMove = false;
             var cur = Vector3.Reflect(wallJumpDir, touchesWall[0].transform.forward);
-            cur.y += 0.3f;
-            var impulseChange = cur.normalized * rb_Body.mass * jumpForce;
+            cur.y += 0.5f;
             
-            rb_Body.AddForce(impulseChange, ForceMode.Impulse);
+            rb_Body.AddForce(cur.normalized * rb_Body.mass * jumpForce, ForceMode.Impulse);
         }
     }
 

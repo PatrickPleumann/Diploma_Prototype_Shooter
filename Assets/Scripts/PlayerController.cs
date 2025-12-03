@@ -25,6 +25,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] public InputActionReference jump;
     [SerializeField] public InputActionReference dash;
 
+    [SerializeField] public Animator animator;
+
     [SerializeField] public float gravityScale = 1;
     [SerializeField] public float gravityForce = 9.81f;
     [SerializeField] public float cameraClampPos = 85f;
@@ -156,7 +158,6 @@ public class PlayerController : MonoBehaviour
     private void OnShoot(InputAction.CallbackContext context)
     {
         EventHandler.onWeaponShoot.Invoke();
-
         crosshairPos = Camera.main.ViewportPointToRay(cameraCenterPoint);
         var tempBullet = Instantiate(bullet, crosshairPos.origin, Quaternion.Euler(transform.eulerAngles));
         var tempBulletRB = tempBullet.GetComponent<Rigidbody>();

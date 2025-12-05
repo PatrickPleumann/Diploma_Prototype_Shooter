@@ -16,35 +16,32 @@ public class BeatTracking : MonoBehaviour
 
     //add async value slider with offset samples and preview on current song before starting.
 
-    public int currentSamples = 0;
-    public int currentTimeSamplesMin = 0;
-    public int currentTimeSamplesMax = 0;
-
     [SerializeField] private float beatOffsetMultiplier = 0.10f;
-    private int lastFrameSamples = 0;
     [SerializeField] public int samplesPerBeat = 0;
     [SerializeField] public int bpm = 90;
-    private int beatMultiplier = 1;
-
-    private int onBeatOffset;
 
     public bool isOnBeat;
-
+    public int currentSamples = 0;
     public int beatCounter = 1;
+
+    private int lastFrameSamples = 0;
+    private int beatMultiplier = 1;
+    private int onBeatOffset;
+
+
+
 
     private void Awake()
     {
-
         source = GetComponent<AudioSource>();
         source.clip = song;
     }
     void Start()
     {
         samplesPerBeat = (int)(source.clip.frequency * (60f / bpm)) * beatMultiplier;
-        onBeatOffset = (int)(samplesPerBeat * 0.10f) * beatMultiplier;
+        onBeatOffset = (int)(samplesPerBeat * beatOffsetMultiplier) * beatMultiplier;
 
         currentSamples += asyncValue;
-
 
         beatSliderLeft.maxValue = samplesPerBeat;
         beatSliderRight.maxValue = samplesPerBeat;

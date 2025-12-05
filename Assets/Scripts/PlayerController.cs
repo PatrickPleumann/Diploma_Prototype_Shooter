@@ -36,6 +36,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform cameraTransform;
     [SerializeField] private Transform playerTransform; // because I wanted to seperate rb rotation from camera rotation
     [SerializeField] private Transform gunBarrelRoot;
+
     private Vector3 cameraCenterPoint;
 
     [SerializeField] private Vector3 groundCheckPos;
@@ -157,6 +158,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnShoot(InputAction.CallbackContext context)
     {
+        animator.SetTrigger("OnShoot");
         EventHandler.onWeaponShoot.Invoke();
         crosshairPos = Camera.main.ViewportPointToRay(cameraCenterPoint);
         var tempBullet = Instantiate(bullet, crosshairPos.origin, Quaternion.Euler(transform.eulerAngles));
@@ -177,6 +179,7 @@ public class PlayerController : MonoBehaviour
         {
             Debug.Log("HIT!");
         }
+        animator.ResetTrigger("OnShoot");
     }
 
 

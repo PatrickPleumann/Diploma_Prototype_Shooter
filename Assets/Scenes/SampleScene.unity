@@ -222,8 +222,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BeatTracking
   source: {fileID: 0}
-  song: {fileID: 8300000, guid: acdb8007b6d676e4f956708742115f46, type: 3}
-  asyncValue: -6000
+  song: {fileID: 8300000, guid: f35a662df817426429a49dc1bd8ec3d3, type: 3}
+  asyncValue: 0
   beatSliderLeft: {fileID: 1763217437}
   onBeatAreaSliderLeft: {fileID: 1654456645}
   beatSliderRight: {fileID: 1448693976}
@@ -231,9 +231,9 @@ MonoBehaviour:
   currentSamples: 0
   currentTimeSamplesMin: 0
   currentTimeSamplesMax: 0
-  beatOffsetMultiplier: 0.1
+  beatOffsetMultiplier: 0.2
   samplesPerBeat: 0
-  bpm: 90
+  bpm: 103
   isOnBeat: 0
   beatCounter: 0
 --- !u!4 &46440849
